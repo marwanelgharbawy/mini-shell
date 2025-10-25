@@ -1,0 +1,20 @@
+total 608
+drwxrwxr-x 4 maro maro   4096 Oct 25 21:50 .
+drwxrwxr-x 3 maro maro   4096 Oct 24 16:18 ..
+-rw-rw-r-- 1 maro maro  19491 Oct 25 21:49 command.cc
+-rw-rw-r-- 1 maro maro   1149 Oct 24 15:04 command.h
+-rw-rw-r-- 1 maro maro 148136 Oct 25 21:50 command.o
+-rw-rw-r-- 1 maro maro     45 Oct 25 21:38 err.txt
+drwxrwxr-x 8 maro maro   4096 Oct 25 21:39 .git
+-rw-rw-r-- 1 maro maro     17 Oct 24 12:11 .gitignore
+-rw-rw-r-- 1 maro maro     56 Oct 25 21:50 log.txt
+-rw-rw-r-- 1 maro maro    643 Oct 24 17:07 Makefile
+-rwxrwxr-x 1 maro maro 183880 Oct 25 21:50 myshell
+-rw-rw-r-- 1 maro maro      0 Oct 25 21:50 output1.txt
+-rw-rw-r-- 1 maro maro    896 Oct 24 15:00 README.md
+-rwxrwxr-x 1 maro maro    959 Oct 24 17:34 run_all_and_sum.sh
+drwxrwxr-x 2 maro maro   4096 Oct 24 15:52 testcases
+-rw-rw-r-- 1 maro maro   1954 Oct 24 12:11 tokenizer.cc
+-rw-rw-r-- 1 maro maro    456 Oct 24 12:11 tokenizer.h
+-rw-rw-r-- 1 maro maro 211856 Oct 24 15:02 tokenizer.o
+"second line"

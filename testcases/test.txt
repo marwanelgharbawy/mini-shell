@@ -1,0 +1,238 @@
+#!/usr/bin/env bash
+cd ..
+
+# Ensure file exists, then append
+( echo 'echo "second line" >> output1.txt'; echo 'exit' ) | ./myshell >/dev/null 2>&1
+
+strip_prompt(){ sed -E 's/^myshell> ?//' ; }
+remove_command_table(){
+  sed -n '/COMMAND TABLE/{
+    :a;N;/^\n/!ba;d
+  }; p'
+}
+out="$( (echo 'cat output1.txt | grep line'; echo 'exit') | ./myshell | strip_prompt | remove_command_table )"
+last="$(printf '%s\n' "$out" | tail -n1)"
+
+if [[ "$last" == '"second line"' ]]; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+strip_prompt(){ sed -E 's/^myshell> ?//' ; }
+
+extract_background(){
+  awk '
+    BEGIN { in_table=0; colline=0; }
+    /COMMAND TABLE/ { in_table=1; next }
+    in_table && /Background/ { colline=1; next }
+    in_table && colline && /^[ -]+$/ { next }
+    in_table && colline && NF { print $NF; exit }
+  '
+}
+
+out="$( (echo 'sleep 1 &'; echo 'exit') | ./myshell | strip_prompt )"
+bg="$(printf '%s\n' "$out" | extract_background | tr -d '\r')"
+
+if [[ "$bg" == "YES" ]]; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+strip_prompt(){ sed -E 's/^myshell> ?//' ; }
+remove_command_table(){
+  sed -n '/COMMAND TABLE/{
+    :a;N;/^\n/!ba;d
+  }; p'
+}
+
+out="$( (echo 'ls -al'; echo 'exit') | ./myshell | strip_prompt | remove_command_table )"
+
+if grep -q 'command.cc' <<<"$out" && \
+   grep -q 'tokenizer.cc' <<<"$out" && \
+   grep -q 'myshell' <<<"$out"; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+
+#!/usr/bin/env bash
+cd ..
+
+if [[ ! -f output1.txt ]]; then
+  ( echo 'ls -al > output1.txt'; echo 'exit' ) | ./myshell >/dev/null 2>&1
+fi
+
+strip_prompt(){ sed -E 's/^myshell> ?//' ; }
+remove_command_table(){
+  sed -n '/COMMAND TABLE/{
+    :a;N;/^\n/!ba;d
+  }; p'
+}
+
+out="$( (echo 'cat < output1.txt'; echo 'exit') | ./myshell | strip_prompt | remove_command_table )"
+
+if grep -q '^total ' <<<"$out" && grep -q 'command.cc' <<<"$out" && grep -q 'tokenizer.cc' <<<"$out"; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+strip_prompt() {
+  sed -E 's/^myshell> ?//'
+}
+
+remove_command_table() {
+  sed '/COMMAND TABLE/,/^$/d'
+}
+
+out="$( (echo 'cd ..'; echo 'exit') | ./myshell | strip_prompt | remove_command_table )"
+
+msg1="Changing to directory '..'"
+msg2_prefix="You are now in "
+
+if grep -Fxq "$msg1" <<< "$out" && grep -q "^$msg2_prefix" <<< "$out"; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+strip_prompt(){ sed -E 's/^myshell> ?//' ; }
+remove_command_table(){
+  sed -n '/COMMAND TABLE/{
+    :a;N;/^\n/!ba;d
+  }; p'
+}
+
+out="$( (echo 'ls -1 | wc -l'; echo 'exit') | ./myshell | strip_prompt | remove_command_table )"
+num="$(printf '%s\n' "$out" | tail -n1 | tr -d '\r')"
+
+# Accept any positive integer (directory contents can change)
+if [[ "$num" =~ ^[0-9]+$ ]] && (( num > 0 )); then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+strip_prompt(){ sed -E 's/^myshell> ?//' ; }
+remove_command_table(){
+  sed -n '/COMMAND TABLE/{
+    :a;N;/^\n/!ba;d
+  }; p'
+}
+out="$( (echo 'echo "Hello OS Lab"'; echo 'exit') | ./myshell | strip_prompt | remove_command_table )"
+last="$(printf '%s\n' "$out" | tail -n1)"
+
+if [[ "$last" == '"Hello OS Lab"' ]]; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+# Clear log.txt at the start
+: > log.txt
+
+# Run 10 simple commands, each followed by newline to separate
+(
+  echo 'echo one'
+  echo 'echo two'
+  echo 'echo three'
+  echo 'echo four'
+  echo 'echo five'
+  echo 'echo six'
+  echo 'echo seven'
+  echo 'echo eight'
+  echo 'echo nine'
+  echo 'echo ten'
+  echo 'exit'
+) | ./myshell >/dev/null 2>&1
+
+# Count lines in log.txt
+linecount=$(wc -l < log.txt || echo 0)
+
+if [[ "$linecount" -eq 10 ]]; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+strip_prompt() {
+  sed -E 's/^myshell> ?//'
+}
+
+# Remove all COMMAND TABLE blocks
+remove_command_table() {
+  sed '/COMMAND TABLE/,/^$/d'
+}
+
+out="$( (echo 'pwd'; echo 'exit') | ./myshell | strip_prompt | remove_command_table )"
+
+# Get last non-empty line
+last_line="$(printf '%s\n' "$out" | awk 'NF' | tail -n1)"
+
+if [[ -n "$last_line" ]]; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+rm -f output1.txt
+
+# We only need to check the file is created (content varies)
+( echo 'ls -al > output1.txt'; echo 'exit' ) | ./myshell >/dev/null 2>&1
+
+if [[ -f output1.txt ]]; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
+#!/usr/bin/env bash
+cd ..
+
+rm -f err.txt
+
+( echo 'cat no_such_file 2> err.txt'; echo 'exit' ) | ./myshell >/dev/null 2>&1
+
+if [[ -s err.txt ]]; then
+  echo 2
+  exit 0
+else
+  echo 0
+  exit 1
+fi
